@@ -5,5 +5,5 @@ resources:
   - cert-manager
   - eso
   # - synology-csi
-  # - cloudnativepg
+  - cloudnativepg
   - longhorn
