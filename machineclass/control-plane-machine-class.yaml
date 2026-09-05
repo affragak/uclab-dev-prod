@@ -1,0 +1,17 @@
+metadata:
+  namespace: default
+  type: MachineClasses.omni.sidero.dev
+  id: control-plane
+spec:
+  autoprovision:
+    providerid: vsphere
+    providerdata: |
+      cpu: 4
+      memory: 8192 # in MB
+      disk_size: 10 # in GB
+      network: "VLAN-10"
+      datastore: "atlas"
+      datacenter: "UCLAB-8"
+      resource_pool: "Resources"
+      template: "control-plane-talos-omni-1-13-8"
+      firmware: "efi"

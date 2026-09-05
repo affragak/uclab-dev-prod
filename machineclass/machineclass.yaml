@@ -1,0 +1,41 @@
+metadata:
+  namespace: default
+  type: MachineClasses.omni.sidero.dev
+  id: vsphere
+spec:
+  autoprovision:
+    providerid: vsphere
+    providerdata: |
+      cpu: 2
+      memory: 4096 # in MB
+      disk_size: 10 # in GB
+      network: "VLAN-10"
+      datastore: "atlas"
+      datacenter: "UCLAB-8"
+      resource_pool: "Resources"
+      # template: "omni-omni-1.13.8-vmware-amd64"
+      # optional: use Content Library instead of template (mutually exclusive with template)
+      content_library: "earth"
+      library_item: "uclabdev-omni-1-13-8-vmware-amd64"
+      # storage_policy is optional. Name of a vSphere Storage Policy (SPBM) to
+      # apply to the VM home and its disks. When omitted, the datastore default
+      # policy is used. Useful e.g. to give control plane (etcd) disks a higher
+      # Storage I/O Control share/reservation than worker disks.
+      # storage_policy: "my-storage-policy"
+      # firmware is optional, "bios" or "efi". When omitted, the VM inherits the
+      # firmware of the template or OVF it was created from. Talos OVAs from
+      # factory.talos.dev import as BIOS, so set "efi" to boot them with UEFI
+      # without having to convert the template by hand.
+      firmware: "efi"
+      # folder is optional.
+      # folder: "test"
+      # cluster_folder is optional. When true, VMs are placed in a subfolder
+      # named after the cluster (best-effort, derived from the machine set
+      # name), created automatically under folder (or the datacenter VM folder).
+      # cluster_folder: true
+      # tags is optional. vCenter tags to attach to the VM. Each entry is a
+      # tag name, or "category/name" when the tag name exists in multiple
+      # categories. Tags must already exist in vCenter.
+      # tags:
+      #   - "backup-policy/daily"
+      #   - "environment-prod"

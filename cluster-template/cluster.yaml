@@ -1,0 +1,20 @@
+kind: Cluster
+kubernetes:
+  version: v1.36.3
+name: uclab-dev-prod
+patches:
+talos:
+  version: v1.13.8
+---
+kind: ControlPlane
+machineClass:
+  name: control-plane
+  size: 3
+patches:
+  - file: patches/disable-cni.yaml
+---
+kind: Workers
+name: worker
+machineClass:
+  name: worker
+  size: 3
