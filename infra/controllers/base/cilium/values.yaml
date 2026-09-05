@@ -1,3 +1,6 @@
+cluster:
+  name: uclab-dev-prod
+
 ipam:
   mode: kubernetes
 
@@ -57,7 +60,6 @@ l2announcements:
 externalIPs:
   enabled: true
 
-
 k8sClientRateLimit:
   qps: 50
   burst: 200
@@ -68,3 +70,4 @@ gatewayAPI:
   enableAppProtocol: true
   gatewayClass:
     create: "true"
+
