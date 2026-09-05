@@ -3,7 +3,7 @@ kind: Kustomization
 resources:
   - cilium
   # - cert-manager
-  # - eso
+  - eso
   # - synology-csi
   # - cloudnativepg
   # - longhorn
