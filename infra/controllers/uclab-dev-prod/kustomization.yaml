@@ -6,4 +6,4 @@ resources:
   - eso
   # - synology-csi
   # - cloudnativepg
-  # - longhorn
+  - longhorn
