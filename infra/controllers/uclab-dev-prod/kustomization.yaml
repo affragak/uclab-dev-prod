@@ -7,3 +7,4 @@ resources:
   # - synology-csi
   - cloudnativepg
   - longhorn
+  - gateway
