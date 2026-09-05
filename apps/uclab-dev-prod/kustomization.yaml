@@ -3,4 +3,4 @@ kind: Kustomization
 resources:
   - forgejo
   - forgejo-runner
-  # - n8n
+  - n8n

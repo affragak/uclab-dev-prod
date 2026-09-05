@@ -31,10 +31,10 @@ spec:
 
   storage:
     size: 5Gi
-    storageClass: synology-iscsi-storage
 
   plugins:
     - name: barman-cloud.cloudnative-pg.io
       isWALArchiver: true
       parameters:
         barmanObjectName: n8n-objectstore
+
