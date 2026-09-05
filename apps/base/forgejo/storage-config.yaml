@@ -5,8 +5,7 @@ metadata:
   namespace: forgejo
 spec:
   accessModes:
-  - ReadWriteOnce
+    - ReadWriteMany
   resources:
     requests:
       storage: 1Gi
-  storageClassName: synology-nfs-storage
