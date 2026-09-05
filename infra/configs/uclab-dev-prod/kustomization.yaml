@@ -3,5 +3,5 @@ kind: Kustomization
 resources:
   - cilium
   - eso
-  # - cert-manager
+  - cert-manager
   # - synology-csi
