@@ -1,0 +1,70 @@
+ipam:
+  mode: kubernetes
+
+kubeProxyReplacement: true
+
+securityContext:
+  capabilities:
+    ciliumAgent:
+      - CHOWN
+      - KILL
+      - NET_ADMIN
+      - NET_RAW
+      - IPC_LOCK
+      - SYS_ADMIN
+      - SYS_RESOURCE
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    cleanCiliumState:
+      - NET_ADMIN
+      - SYS_ADMIN
+      - SYS_RESOURCE
+
+cgroup:
+  autoMount:
+    enabled: false
+  hostRoot: /sys/fs/cgroup
+
+k8sServiceHost: localhost
+k8sServicePort: 7445
+
+hubble:
+  enabled: true
+  metrics:
+    enabled:
+      - dns
+      - drop
+      - tcp
+      - flow
+      - port-distribution
+      - icmp
+      - httpV2:sourceContext=workload-name|pod-name|reserved-identity;destinationContext=workload-name|pod-name|reserved-identity;labelsContext=source_namespace,destination_namespace,traffic_direction
+    enableOpenMetrics: true
+  relay:
+    enabled: true
+  ui:
+    enabled: true
+    service:
+      annotations:
+        omni-kube-service-exposer.sidero.dev/port: "50080"
+        omni-kube-service-exposer.sidero.dev/label: Hubble
+
+l2announcements:
+  enabled: true
+
+externalIPs:
+  enabled: true
+
+
+k8sClientRateLimit:
+  qps: 50
+  burst: 200
+
+gatewayAPI:
+  enabled: true
+  enableAlpn: true
+  enableAppProtocol: true
+  gatewayClass:
+    create: "true"
