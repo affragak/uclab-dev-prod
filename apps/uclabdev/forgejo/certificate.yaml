@@ -1,0 +1,12 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: forgejo-uclab-tls
+  namespace: forgejo
+spec:
+  secretName: forgejo-uclab-tls
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  dnsNames:
+    - forgejo.uclab.dev

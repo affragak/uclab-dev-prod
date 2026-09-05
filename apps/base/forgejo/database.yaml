@@ -1,0 +1,39 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: forgejo-db
+spec:
+  instances: 3
+
+  bootstrap:
+    initdb:
+      database: forgejodb
+      owner: forgejo
+      secret:
+        name: forgejo-db-credentials
+
+  # bootstrap:
+  #   recovery:
+  #     database: app
+  #     owner: app
+  #     source: source
+  #     secret:
+  #       name: customer1-db-credentials
+  #
+  # externalClusters:
+  #   - name: source
+  #     plugin:
+  #       name: barman-cloud.cloudnative-pg.io
+  #       parameters:
+  #         barmanObjectName: customer1-objectstore
+  #         serverName: customer1-db
+
+  storage:
+    size: 10Gi
+    storageClass: synology-iscsi-storage
+
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: forgejo-objectstore

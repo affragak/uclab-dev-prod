@@ -1,0 +1,109 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/component: server
+    app.kubernetes.io/instance: forgejo
+    app.kubernetes.io/name: forgejo
+  name: forgejo
+  namespace: forgejo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: forgejo
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: forgejo
+        app.kubernetes.io/component: server
+        app.kubernetes.io/instance: forgejo
+        app.kubernetes.io/name: forgejo
+        policy-type: app
+    spec:
+      containers:
+      - env:
+        - name: USER_UID
+          value: "1000"
+        - name: USER_GID
+          value: "1000"
+        envFrom:
+        - configMapRef:
+            name: forgejo-config
+        - secretRef:
+            name: forgejo-db-env
+        image: data.forgejo.org/forgejo/forgejo:13.0.3-rootless
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /api/healthz
+            port: 3000
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 5
+        name: forgejo
+        ports:
+        - containerPort: 3000
+          name: http
+          protocol: TCP
+        - containerPort: 2222
+          name: ssh
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /api/healthz
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+        resources:
+          limits:
+            memory: 2Gi
+          requests:
+            cpu: 500m
+            memory: 512Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          runAsGroup: 1000
+          runAsNonRoot: true
+          runAsUser: 1000
+          seccompProfile:
+            type: RuntimeDefault
+        volumeMounts:
+        - mountPath: /etc/gitea
+          name: forgejo-config
+        - mountPath: /data
+          name: forgejo-data
+      initContainers:
+      - command:
+        - sh
+        - -c
+        - |
+          chown -R 1000:1000 /etc/gitea
+          chown -R 1000:1000 /data
+        image: busybox:1.37
+        name: fix-permissions
+        securityContext:
+          runAsUser: 0
+        volumeMounts:
+        - mountPath: /etc/gitea
+          name: forgejo-config
+        - mountPath: /data
+          name: forgejo-data
+
+      restartPolicy: Always
+      securityContext:
+        fsGroup: 1000
+      volumes:
+      - name: forgejo-config
+        persistentVolumeClaim:
+          claimName: forgejo-config
+      - name: forgejo-data
+        persistentVolumeClaim:
+          claimName: forgejo-data

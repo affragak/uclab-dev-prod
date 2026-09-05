@@ -1,0 +1,19 @@
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: forgejo-objectstore
+  namespace: forgejo
+spec:
+  configuration:
+    destinationPath: "s3://backups/"
+    endpointURL: "http://atlas.uclab8.net:9000"
+    s3Credentials:
+      accessKeyId:
+        name: minio-s3
+        key: ACCESS_KEY_ID
+      secretAccessKey:
+        name: minio-s3
+        key: ACCESS_SECRET_KEY
+    wal:
+      compression: gzip
+  retentionPolicy: 3d
