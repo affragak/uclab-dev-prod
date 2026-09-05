@@ -23,9 +23,8 @@ data:
   FORGEJO__server__SSH_LISTEN_PORT: "2222"
   FORGEJO__server__SSH_PORT: "2222"
   FORGEJO__session__PROVIDER_CONFIG: /data/app/sessions
-  # FORGEJO__service__DISABLE_REGISTRATION: "true"
+  FORGEJO__service__DISABLE_REGISTRATION: "true"
 kind: ConfigMap
 metadata:
   name: forgejo-config
   namespace: forgejo
-
