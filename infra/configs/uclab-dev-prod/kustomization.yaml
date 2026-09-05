@@ -4,4 +4,4 @@ resources:
   - cilium
   - eso
   - cert-manager
-  # - synology-csi
+  - longhorn
