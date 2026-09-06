@@ -11213,3 +11213,5 @@ kind: ConfigMap
 metadata:
   name: cilium-agent-dashboard
   namespace: monitoring
+  labels:
+    grafana_dashboard: "1"

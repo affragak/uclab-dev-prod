@@ -3783,3 +3783,5 @@ kind: ConfigMap
 metadata:
   name: hubble-dashboard
   namespace: monitoring
+  labels:
+    grafana_dashboard: "1"

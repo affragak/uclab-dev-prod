@@ -5,3 +5,4 @@ resources:
   - custom-servicemonitors.yaml
   - dashboards/hubble-dashboard.yaml
   - dashboards/cilium-agent-dashboard.yaml
+  - dashboards/etcd-dashboard.yaml
