@@ -12,6 +12,20 @@ prometheus:
           resources:
             requests:
               storage: 10Gi
+kubeEtcd:
+  enabled: true
+  endpoints:
+    - 10.10.10.198 # 3 control-plane IPs
+    - 10.10.10.199
+    - 10.10.10.192
+  service:
+    enabled: true
+    port: 2381
+    targetPort: 2381
+  serviceMonitor:
+    enabled: true
+    scheme: http
+
 grafana:
   persistence:
     enabled: true
