@@ -1,0 +1,13 @@
+tunnel: uclab-dev-prod
+protocol: http2
+credentials-file: /etc/cloudflared/creds/credentials.json
+metrics: 0.0.0.0:2000
+no-autoupdate: true
+loglevel: info
+transport-loglevel: warn
+ingress:
+  - hostname: hello.example.com
+    service: hello_world
+  - hostname: "*.uclab.dev"
+    service: https://cilium-gateway-uclab-gateway.gateway-system.svc.cluster.local:443
+  - service: http_status:404
