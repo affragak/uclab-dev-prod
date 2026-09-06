@@ -12,6 +12,7 @@ spec:
       isWALArchiver: true
       parameters:
         barmanObjectName: minio-objectstore
+        serverName: linkding-db-v2
   monitoring:
     enablePodMonitor: true
   inheritedMetadata:
