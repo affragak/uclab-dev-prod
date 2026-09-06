@@ -10,4 +10,6 @@ ingress:
     service: hello_world
   - hostname: "*.uclab.dev"
     service: https://cilium-gateway-uclab-gateway.gateway-system.svc.cluster.local:443
+    originRequest:
+      matchSNItoHost: true
   - service: http_status:404
