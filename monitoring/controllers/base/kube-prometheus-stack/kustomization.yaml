@@ -6,7 +6,7 @@ resources:
   - prometheus-stack.yaml
 
 configMapGenerator:
-  - name: prometheus-stack-values
+  - name: kube-prometheus-stack-values
     namespace: flux-system
     files:
       - values.yaml=values.yaml
