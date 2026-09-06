@@ -87,3 +87,16 @@ prometheus:
     annotations:
       prometheus.io/scrape: "true"
       prometheus.io/port: "9962"
+
+operator:
+  rollOutPods: true
+  # replicas: 1
+  prometheus:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+    annotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "9963"
+      labels:
+        app.kubernetes.io/component: monitoring
