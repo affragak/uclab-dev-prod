@@ -2,9 +2,9 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - namespace.yaml
-  - minio-secrets.yaml
+  # - minio-secrets.yaml
   - secrets.yaml
-  - objectstore.yaml
+  # - objectstore.yaml
   - database.yaml
   - storage-config.yaml
   - storage-data.yaml
@@ -13,3 +13,4 @@ resources:
   - service-http.yaml
   - service-ssh.yaml
   - scheduled-backup.yaml
+
