@@ -1,0 +1,22 @@
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: linkding-db-creds
+  namespace: linkding
+spec:
+  refreshInterval: "15s"
+  secretStoreRef:
+    name: vault-backend-global
+    kind: ClusterSecretStore
+  target:
+    name: linkding-db-creds
+    creationPolicy: Owner
+  data:
+    - secretKey: username
+      remoteRef:
+        key: linkding-db-creds
+        property: username
+    - secretKey: password
+      remoteRef:
+        key: linkding-db-creds
+        property: password

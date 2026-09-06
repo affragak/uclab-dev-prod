@@ -4,3 +4,4 @@ resources:
   - forgejo
   - forgejo-runner
   - n8n
+  - linkding

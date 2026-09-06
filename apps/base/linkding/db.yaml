@@ -1,0 +1,57 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: linkding-db-v1
+  namespace: linkding
+spec:
+  description: Postgres cluster for the linkding application
+  instances: 3
+  primaryUpdateStrategy: unsupervised
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: linkding-objectstore
+  monitoring:
+    enablePodMonitor: true
+  inheritedMetadata:
+    labels:
+      app: linkding-database
+  storage:
+    size: 5Gi
+  bootstrap:
+    recovery:
+      database: linkding
+      owner: affragak
+      source: source
+      secret:
+        name: linkding-db-creds
+
+  externalClusters:
+    - name: source
+      plugin:
+        name: barman-cloud.cloudnative-pg.io
+        parameters:
+          barmanObjectName: linkding-objectstore
+          serverName: linkding-db
+  # bootstrap:
+  #   initdb:
+  #     database: linkding
+  #     owner: affragak
+  #     secret:
+  #       name: linkding-db-creds
+  resources:
+    requests:
+      memory: 320Mi
+  managed:
+    services:
+      disabledDefaultServices:
+        - ro
+        - r
+      additional:
+        - selectorType: rw
+          serviceTemplate:
+            metadata:
+              name: linkding-db
+            spec:
+              type: ClusterIP
