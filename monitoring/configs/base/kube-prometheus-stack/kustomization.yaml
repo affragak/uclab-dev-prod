@@ -3,9 +3,11 @@ kind: Kustomization
 resources:
   - grafana-httproute.yaml
   - custom-servicemonitors.yaml
+  - cnpg-alerts.yaml
   - dashboards/hubble-dashboard.yaml
   - dashboards/cilium-agent-dashboard.yaml
   - dashboards/etcd-dashboard.yaml
   - dashboards/performance-cockpit-dashboard.yaml
   - dashboards/app-performance-dashboard.yaml
   - dashboards/loki-logs-dashboard.yaml
+  - dashboards/cnpg-dashboard.yaml
