@@ -1,0 +1,26 @@
+# infra/controllers/base/monitoring/prometheus-stack.yaml
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kube-prometheus-stack
+  namespace: flux-system
+spec:
+  targetNamespace: monitoring
+  releaseName: kube-prometheus-stack
+  interval: 1h
+  chart:
+    spec:
+      chart: kube-prometheus-stack
+      version: "82.6.0"
+      sourceRef:
+        kind: HelmRepository
+        name: prometheus-community
+        namespace: flux-system
+  install:
+    crds: CreateReplace
+  upgrade:
+    crds: CreateReplace
+
+  valuesFrom:
+    - kind: ConfigMap
+      name: kube-prometheus-stack-values

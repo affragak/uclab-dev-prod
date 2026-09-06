@@ -1,0 +1,7 @@
+loki:
+  auth_enabled: false
+singleBinary:
+  replicas: 1
+  persistence:
+    storageClass: longhorn
+    size: 10Gi
