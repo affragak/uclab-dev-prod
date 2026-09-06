@@ -4,6 +4,6 @@ namespace: n8n
 resources:
   - ../../../infra/controllers/base/minio-objectstore
   - ../../base/n8n/
-  - cloudflare.yaml
-  - cloudflare-secret.yaml
-
+  - httproute.yaml
+  # - cloudflare.yaml
+  # - cloudflare-secret.yaml
