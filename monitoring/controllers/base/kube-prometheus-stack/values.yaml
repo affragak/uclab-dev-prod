@@ -31,6 +31,11 @@ grafana:
     enabled: true
     storageClassName: longhorn
     size: 5Gi
+  # The PVC is ReadWriteOnce; RollingUpdate would try to attach it to the new
+  # pod while the old one still holds it (Multi-Attach deadlock across nodes).
+  # Recreate terminates the old pod first.
+  deploymentStrategy:
+    type: Recreate
   # don't hardcode a password like the source repo's default `prom-operator` —
   # wire this through your existing ESO + Vault pattern instead
   admin:
