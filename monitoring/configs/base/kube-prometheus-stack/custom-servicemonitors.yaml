@@ -3,7 +3,7 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: cilium-metrics
-  namespace: prometheus-stack
+  namespace: monitoring
   labels:
     app.kubernetes.io/name: cilium
     release: kube-prometheus-stack
@@ -25,7 +25,7 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: cilium-operator-metrics
-  namespace: prometheus-stack
+  namespace: monitoring
   labels:
     app.kubernetes.io/name: cilium-operator
     release: kube-prometheus-stack
@@ -47,7 +47,7 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: cilium-envoy-metrics
-  namespace: prometheus-stack
+  namespace: monitoring
   labels:
     app.kubernetes.io/name: cilium-envoy
     release: kube-prometheus-stack
