@@ -45,17 +45,14 @@ hubble:
       - icmp
       - httpV2:sourceContext=workload-name|pod-name|reserved-identity;destinationContext=workload-name|pod-name|reserved-identity;labelsContext=source_namespace,destination_namespace,traffic_direction
     enableOpenMetrics: true
+    serviceMonitor:
+      enabled: true
+      labels:
+        release: kube-prometheus-stack
   relay:
     enabled: true
   ui:
     enabled: true
-    serviceMonitor:
-      enabled: true
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "9965"
-      labels:
-        app.kubernetes.io/component: monitoring
     service:
       annotations:
         omni-kube-service-exposer.sidero.dev/port: "50080"
