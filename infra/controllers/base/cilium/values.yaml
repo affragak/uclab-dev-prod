@@ -49,6 +49,13 @@ hubble:
     enabled: true
   ui:
     enabled: true
+    serviceMonitor:
+      enabled: true
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9965"
+      labels:
+        app.kubernetes.io/component: monitoring
     service:
       annotations:
         omni-kube-service-exposer.sidero.dev/port: "50080"
@@ -71,3 +78,12 @@ gatewayAPI:
   gatewayClass:
     create: "true"
 
+prometheus:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    labels:
+      app.kubernetes.io/component: monitoring
+    annotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "9962"
