@@ -1,0 +1,82 @@
+alloy:
+  # Read /var/log so we can tail /var/log/pods/*/*/*.log (CRI logs on Talos).
+  mounts:
+    varlog: true
+  # Pod log files are root-owned; run as root to read them. The monitoring
+  # namespace is PodSecurity "privileged", so this is permitted.
+  securityContext:
+    runAsUser: 0
+    runAsGroup: 0
+  configMap:
+    content: |-
+      // ---- discover every pod in the cluster ----
+      discovery.kubernetes "pods" {
+        role = "pod"
+      }
+
+      // ---- turn pod metadata into OTEL-convention log labels + a file path ----
+      discovery.relabel "pod_logs" {
+        targets = discovery.kubernetes.pods.targets
+
+        rule {
+          source_labels = ["__meta_kubernetes_namespace"]
+          target_label  = "k8s_namespace_name"
+        }
+        rule {
+          source_labels = ["__meta_kubernetes_pod_name"]
+          target_label  = "k8s_pod_name"
+        }
+        rule {
+          source_labels = ["__meta_kubernetes_pod_container_name"]
+          target_label  = "k8s_container_name"
+        }
+        // service_name defaults to the container name...
+        rule {
+          source_labels = ["__meta_kubernetes_pod_container_name"]
+          target_label  = "service_name"
+        }
+        // ...but prefer app.kubernetes.io/name when the workload sets it.
+        rule {
+          source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_name"]
+          regex         = "(.+)"
+          target_label  = "service_name"
+        }
+        // Compute the on-disk log path: /var/log/pods/*<uid>/<container>/*.log
+        rule {
+          source_labels = ["__meta_kubernetes_pod_uid", "__meta_kubernetes_pod_container_name"]
+          separator     = "/"
+          action        = "replace"
+          replacement   = "/var/log/pods/*$1/*.log"
+          target_label  = "__path__"
+        }
+      }
+
+      // ---- tail the matched files ----
+      local.file_match "pod_logs" {
+        path_targets = discovery.relabel.pod_logs.output
+      }
+
+      loki.source.file "pod_logs" {
+        targets    = local.file_match.pod_logs.targets
+        forward_to = [loki.process.pod_logs.receiver]
+      }
+
+      // ---- parse the CRI container-log format, then ship ----
+      loki.process "pod_logs" {
+        stage.cri {}
+        forward_to = [loki.write.default.receiver]
+      }
+
+      loki.write "default" {
+        endpoint {
+          // auth_enabled=false on this Loki, so no X-Scope-OrgID needed.
+          url = "http://loki-gateway.monitoring.svc.cluster.local/loki/api/v1/push"
+        }
+      }
+
+# DaemonSet on every node, including tainted control planes, so we capture
+# system/control-plane workload logs too.
+controller:
+  type: daemonset
+  tolerations:
+    - operator: Exists

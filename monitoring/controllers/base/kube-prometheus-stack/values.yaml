@@ -42,3 +42,9 @@ grafana:
       type: loki
       url: http://loki-gateway.monitoring.svc.cluster.local
       access: proxy
+  # Land on the curated cockpit instead of Grafana's stock home page.
+  # The dashboard sidecar writes each ConfigMap's data key into /tmp/dashboards/,
+  # so this path matches the performance-cockpit.json key.
+  grafana.ini:
+    dashboards:
+      default_home_dashboard_path: /tmp/dashboards/performance-cockpit.json
