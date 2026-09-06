@@ -1,39 +1,55 @@
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
-  name: forgejo-db
+  name: forgejo-db-v1
 spec:
   instances: 3
 
-  bootstrap:
-    initdb:
-      database: forgejodb
-      owner: forgejo
-      secret:
-        name: forgejo-db-credentials
-
-  # bootstrap:
-  #   recovery:
-  #     database: app
-  #     owner: app
-  #     source: source
-  #     secret:
-  #       name: customer1-db-credentials
-  #
-  # externalClusters:
-  #   - name: source
-  #     plugin:
-  #       name: barman-cloud.cloudnative-pg.io
-  #       parameters:
-  #         barmanObjectName: customer1-objectstore
-  #         serverName: customer1-db
+  monitoring:
+    enablePodMonitor: true
 
   storage:
     size: 10Gi
 
+  # WAL archiving for THIS cluster. serverName defaults to the cluster name
+  # (forgejo-db-v1), which differs from the recovery source (forgejo-db) so the
+  # new timeline does not overwrite the backup we are restoring from.
   plugins:
     - name: barman-cloud.cloudnative-pg.io
       isWALArchiver: true
       parameters:
-        barmanObjectName: forgejo-objectstore
+        barmanObjectName: minio-objectstore
 
+  # Bootstrap by recovering the previous forgejo-db backup from the object store
+  # (base backup 20260906T030003 + archived WAL). This restores to the last
+  # archived WAL point.
+  bootstrap:
+    recovery:
+      database: forgejodb
+      owner: forgejo
+      source: source
+      secret:
+        name: forgejo-db-credentials
+
+  externalClusters:
+    - name: source
+      plugin:
+        name: barman-cloud.cloudnative-pg.io
+        parameters:
+          barmanObjectName: minio-objectstore
+          serverName: forgejo-db
+
+  # Expose a stable rw service named "forgejo-db" (like linkding-db) so the app
+  # config does not need to change on future cluster version bumps.
+  managed:
+    services:
+      disabledDefaultServices:
+        - ro
+        - r
+      additional:
+        - selectorType: rw
+          serviceTemplate:
+            metadata:
+              name: forgejo-db
+            spec:
+              type: ClusterIP

@@ -6,6 +6,9 @@ metadata:
 spec:
   instances: 3
 
+  monitoring:
+    enablePodMonitor: true
+
   bootstrap:
     initdb:
       database: app
@@ -36,5 +39,9 @@ spec:
     - name: barman-cloud.cloudnative-pg.io
       isWALArchiver: true
       parameters:
-        barmanObjectName: n8n-objectstore
+        # Was "n8n-objectstore" (never created — objectstore.yaml is commented
+        # out in kustomization.yaml), which broke WAL archiving. Point at the
+        # objectstore that actually exists so archiving resumes and a base
+        # backup can be taken before any future rename/recovery.
+        barmanObjectName: minio-objectstore
 

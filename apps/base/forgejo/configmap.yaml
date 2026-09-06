@@ -4,7 +4,7 @@ data:
   FORGEJO__actions__ENABLED: "true"
   FORGEJO__attachment__PATH: /data/app/attachments
   FORGEJO__database__DB_TYPE: postgres
-  FORGEJO__database__HOST: forgejo-db-rw:5432
+  FORGEJO__database__HOST: forgejo-db:5432
   FORGEJO__database__NAME: forgejodb
   FORGEJO__database__SSL_MODE: disable
   FORGEJO__lfs__PATH: /data/lfs
