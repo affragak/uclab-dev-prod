@@ -4,7 +4,6 @@ resources:
   - namespace.yaml
   # - minio-secrets.yaml
   - secrets.yaml
-  # - objectstore.yaml
   - database.yaml
   - configmap.yaml
   - storage.yaml

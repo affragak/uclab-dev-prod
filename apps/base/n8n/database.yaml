@@ -1,47 +1,54 @@
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
-  name: n8n-db
-  # name: customer1-db2
+  name: n8n-db-v1
 spec:
   instances: 3
 
   monitoring:
     enablePodMonitor: true
 
-  bootstrap:
-    initdb:
-      database: app
-      owner: app
-      secret:
-        name: n8n-db-credentials
-
-  # bootstrap:
-  #   recovery:
-  #     database: app
-  #     owner: app
-  #     source: source
-  #     secret:
-  #       name: customer1-db-credentials
-  #
-  # externalClusters:
-  #   - name: source
-  #     plugin:
-  #       name: barman-cloud.cloudnative-pg.io
-  #       parameters:
-  #         barmanObjectName: customer1-objectstore
-  #         serverName: customer1-db
-
   storage:
     size: 5Gi
 
+  # WAL archiving for THIS cluster. serverName defaults to the cluster name
+  # (n8n-db-v1), which differs from the recovery source (n8n-db) so the new
+  # timeline does not overwrite the backup we are restoring from.
   plugins:
     - name: barman-cloud.cloudnative-pg.io
       isWALArchiver: true
       parameters:
-        # Was "n8n-objectstore" (never created — objectstore.yaml is commented
-        # out in kustomization.yaml), which broke WAL archiving. Point at the
-        # objectstore that actually exists so archiving resumes and a base
-        # backup can be taken before any future rename/recovery.
         barmanObjectName: minio-objectstore
 
+  # Bootstrap by recovering the previous n8n-db backup from the object store
+  # (base backup + archived WAL). Restores to the last archived WAL point.
+  bootstrap:
+    recovery:
+      database: app
+      owner: app
+      source: source
+      secret:
+        name: n8n-db-credentials
+
+  externalClusters:
+    - name: source
+      plugin:
+        name: barman-cloud.cloudnative-pg.io
+        parameters:
+          barmanObjectName: minio-objectstore
+          serverName: n8n-db
+
+  # Expose a stable rw service named "n8n-db" (like linkding-db) so the app
+  # config does not need to change on future cluster version bumps.
+  managed:
+    services:
+      disabledDefaultServices:
+        - ro
+        - r
+      additional:
+        - selectorType: rw
+          serviceTemplate:
+            metadata:
+              name: n8n-db
+            spec:
+              type: ClusterIP
