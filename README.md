@@ -93,3 +93,25 @@ flux-system
 ```
 
 CRD-providing controllers (CloudNativePG, Prometheus Operator, sigstore policy-controller) are installed by `*-controllers`; the resources that use those CRDs (Cluster, ServiceMonitor, ClusterImagePolicy, …) are applied by the dependent `*-configs`.
+
+## Bootstrap
+
+Order matters: the CNI is `none`, so nodes stay `NotReady` until Cilium is installed, and most secrets come from Vault.
+
+1. **Provision (Omni).** Apply the cluster template `omni/cluster-template/cluster.yaml` — Talos v1.13.8 / Kubernetes v1.36.3, 3 control-plane + 3 workers from the machine classes in `omni/machineclass/`. The `omni/patches/disable-cni.yaml` patch disables kube-proxy and the built-in CNI and adds bootstrap `extraManifests` (kubelet-serving-cert-approver, metrics-server).
+2. **CNI (Cilium).** Install Cilium via Helm using `omni/cni/cilium-values.yaml` (release name `cilium`, kube-proxy replacement). Once the agents are up the nodes go `Ready`. Flux later adopts this same release via `infra/controllers/base/cilium` (chart 1.20.1) — keep the release name `cilium` so it reconciles instead of duplicating.
+3. **Flux.** Bootstrap Flux against this repo (`https://github.com/affragak/uclab-dev-prod.git`, branch `main`, path `clusters/uclab-dev-prod`). This installs the GitOps controllers and the root sync in `clusters/uclab-dev-prod/flux-system/`.
+4. **Seed the Vault token (root of trust).** The `vault-backend-global` `ClusterSecretStore` authenticates to `https://vault.uclab8.net` with a token from a Kubernetes secret **`vault-token`** in the ESO namespace. This secret is intentionally **not in Git** — create it manually. Every other secret (DB creds, registry pull secrets, the Cosign key, Grafana creds, the Cloudflare tunnel token) then materializes from Vault via ExternalSecrets.
+5. **Converge.** Flux reconciles in the dependency order above: `infra-controllers` → `infra-configs` → `apps` + `monitoring-*`.
+
+## Disaster recovery
+
+| Layer | Recovery |
+|---|---|
+| Cluster / platform | Re-run bootstrap (Omni → Cilium → Flux → seed `vault-token`). Flux rebuilds all controllers, configs, apps, and monitoring from Git. |
+| Secrets | Reappear automatically from Vault via ESO once `vault-token` is seeded. |
+| Databases | CNPG `<app>-db-v1` clusters **bootstrap by recovery** from MinIO (Barman base backup + WAL) with no manual steps, provided valid backups exist in `minio-objectstore`. Confirm a base backup / `firstRecoverabilityPoint` exists before relying on it. |
+| Ingress / DNS | Cloudflare tunnel token comes from Vault; the tunnel ingress config and DNS records live in Cloudflare. |
+| Persistent volumes | Longhorn volumes via Longhorn's own backup/restore; DinD/build caches are ephemeral and rebuild themselves. |
+
+External dependencies that must survive a cluster loss (back them up independently — they are the roots of trust/state): **Omni**, **Vault** (`vault.uclab8.net`), the **MinIO** object store (DB backups), the **Forgejo registry** (`forgejo.uclab.dev`), and **Cloudflare** (tunnel + DNS).
