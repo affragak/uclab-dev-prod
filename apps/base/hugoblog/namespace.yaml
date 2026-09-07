@@ -4,4 +4,4 @@ metadata:
   name: hugoblog
   labels:
     pod-security.kubernetes.io/enforce: restricted
-    # policy.sigstore.dev/include: "true"
+    policy.sigstore.dev/include: "true"
