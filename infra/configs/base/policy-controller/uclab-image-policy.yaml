@@ -1,13 +1,14 @@
 # Requires the hugoblog image to be cosign-signed with our public key.
-# mode: warn — logs violations without blocking, so we can confirm the
-# signature verifies before switching to enforce. Only namespaces labeled
-# policy.sigstore.dev/include=true are evaluated.
+# mode: enforce — unsigned/unverifiable images (matching the glob) are denied
+# admission. Only namespaces labeled policy.sigstore.dev/include=true are
+# evaluated. Verified in warn mode first: the signed digest passes, the glob
+# matches (a tag ref is denied "must be an image digest").
 apiVersion: policy.sigstore.dev/v1beta1
 kind: ClusterImagePolicy
 metadata:
   name: uclab-image-policy
 spec:
-  mode: warn
+  mode: enforce
   images:
     - glob: "forgejo.uclab.dev/antonis/uclab**"
   authorities:
