@@ -12,4 +12,10 @@ ingress:
     service: https://cilium-gateway-uclab-gateway.gateway-system.svc.cluster.local:443
     originRequest:
       matchSNItoHost: true
+  # Apex — the wildcard above does not match the bare domain, so route it
+  # explicitly to the same gateway (serves the hugoblog HTTPRoute for uclab.dev).
+  - hostname: "uclab.dev"
+    service: https://cilium-gateway-uclab-gateway.gateway-system.svc.cluster.local:443
+    originRequest:
+      matchSNItoHost: true
   - service: http_status:404
