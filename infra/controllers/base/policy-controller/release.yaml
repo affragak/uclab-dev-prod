@@ -1,0 +1,33 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: policy-controller
+  namespace: cosign-system
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: policy-controller
+      version: "0.10.6"
+      sourceRef:
+        kind: HelmRepository
+        name: sigstore
+        namespace: cosign-system
+      interval: 12h
+  values:
+    webhook:
+      # Give the webhook Docker credentials so it can read manifests and
+      # cosign signatures from the private forgejo.uclab.dev registry.
+      env:
+        DOCKER_CONFIG: /var/registry-auth
+      volumeMounts:
+        - name: registry-auth
+          mountPath: /var/registry-auth
+          readOnly: true
+      volumes:
+        - name: registry-auth
+          secret:
+            secretName: forgejo-registry
+            items:
+              - key: .dockerconfigjson
+                path: config.json
