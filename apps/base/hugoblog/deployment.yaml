@@ -31,7 +31,6 @@ spec:
         seccompProfile:
           type: RuntimeDefault
       imagePullSecrets:
-        - name: ghcr-pull
         - name: forgejo-registry
       containers:
         - name: nginx
