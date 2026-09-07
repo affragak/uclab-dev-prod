@@ -5,3 +5,4 @@ resources:
   - ghcr-pull-externalsecret.yaml
   - deployment.yaml
   - service.yaml
+  - pdb.yaml

@@ -5,7 +5,7 @@ metadata:
   labels:
     app: hugoblog
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: hugoblog
@@ -14,6 +14,15 @@ spec:
       labels:
         app: hugoblog
     spec:
+      # Keep the two replicas on different worker nodes so a single node
+      # failure/drain never takes the blog fully offline.
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app: hugoblog
       securityContext:
         runAsNonRoot: true
         runAsUser: 101

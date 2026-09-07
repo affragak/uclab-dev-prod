@@ -1,0 +1,11 @@
+# Keep at least one hugoblog pod serving during voluntary disruptions
+# (node cordon/drain during Talos upgrades, etc.).
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: hugoblog
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: hugoblog
