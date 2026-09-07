@@ -32,6 +32,7 @@ spec:
           type: RuntimeDefault
       imagePullSecrets:
         - name: ghcr-pull
+        - name: forgejo-registry
       containers:
         - name: nginx
           image: ghcr.io/affragak/uclab@sha256:a823376999369d1f7e7f2ee638e5f11b07d09686bbd17676149377f6ce9caced

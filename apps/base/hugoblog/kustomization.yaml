@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - ghcr-pull-externalsecret.yaml
+  - forgejo-registry-externalsecret.yaml
   - deployment.yaml
   - service.yaml
   - pdb.yaml
