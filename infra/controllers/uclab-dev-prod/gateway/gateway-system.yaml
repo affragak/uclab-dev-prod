@@ -27,3 +27,25 @@ spec:
       allowedRoutes:
         namespaces:
           from: All
+    # Apex uclab.dev — the wildcard above does not match the bare domain, so
+    # the hugoblog HTTPRoute needs dedicated apex listeners. TLS uses the same
+    # cert secret, which now carries uclab.dev as a SAN alongside *.uclab.dev.
+    - name: http-apex
+      port: 80
+      protocol: HTTP
+      hostname: "uclab.dev"
+      allowedRoutes:
+        namespaces:
+          from: All
+    - name: https-apex
+      port: 443
+      protocol: HTTPS
+      hostname: "uclab.dev"
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - kind: Secret
+            name: uclab-wildcard-tls
+      allowedRoutes:
+        namespaces:
+          from: All
