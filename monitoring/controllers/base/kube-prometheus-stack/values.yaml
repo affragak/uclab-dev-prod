@@ -14,10 +14,13 @@ prometheus:
               storage: 10Gi
 kubeEtcd:
   enabled: true
+  # NOTE: hardcoded control-plane IPs — these change when control-plane nodes
+  # are recreated. If kube-etcd targets go DOWN, re-check `kubectl get nodes -o wide`
+  # and update these. Also requires Talos etcd `listen-metrics-urls: http://0.0.0.0:2381`.
   endpoints:
-    - 10.10.10.198 # 3 control-plane IPs
-    - 10.10.10.199
-    - 10.10.10.192
+    - 10.10.10.167 # 3 control-plane IPs
+    - 10.10.10.169
+    - 10.10.10.171
   service:
     enabled: true
     port: 2381
