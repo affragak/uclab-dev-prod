@@ -12,7 +12,7 @@ spec:
       isWALArchiver: true
       parameters:
         barmanObjectName: minio-objectstore
-        serverName: linkding-db-v2
+        serverName: linkding-db-v3
   monitoring:
     enablePodMonitor: true
   inheritedMetadata:
@@ -34,7 +34,7 @@ spec:
         name: barman-cloud.cloudnative-pg.io
         parameters:
           barmanObjectName: minio-objectstore
-          serverName: linkding-db
+          serverName: linkding-db-v2
   # bootstrap:
   #   initdb:
   #     database: linkding

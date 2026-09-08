@@ -19,6 +19,7 @@ spec:
       isWALArchiver: true
       parameters:
         barmanObjectName: minio-objectstore
+        serverName: n8n-db-v2
 
   # Bootstrap by recovering the previous n8n-db backup from the object store
   # (base backup + archived WAL). Restores to the last archived WAL point.
@@ -36,7 +37,7 @@ spec:
         name: barman-cloud.cloudnative-pg.io
         parameters:
           barmanObjectName: minio-objectstore
-          serverName: n8n-db
+          serverName: n8n-db-v1
 
   # Expose a stable rw service named "n8n-db" (like linkding-db) so the app
   # config does not need to change on future cluster version bumps.
