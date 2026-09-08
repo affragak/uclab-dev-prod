@@ -6,3 +6,4 @@ resources:
   - ../../base/linkding/
   - configmap.yaml
   - linkding-container-env-secret.yaml
+  - httproute.yaml
