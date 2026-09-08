@@ -46,7 +46,11 @@ hubble:
       - httpV2:sourceContext=workload-name|pod-name|reserved-identity;destinationContext=workload-name|pod-name|reserved-identity;labelsContext=source_namespace,destination_namespace,traffic_direction
     enableOpenMetrics: true
     serviceMonitor:
-      enabled: true
+      # Disabled: ServiceMonitor CRDs come from kube-prometheus-stack, which
+      # reconciles AFTER infra — enabling this makes the Cilium chart install
+      # fail on a cold bootstrap. Cilium/Hubble metrics are still exposed and
+      # scraped via custom ServiceMonitors in monitoring/configs.
+      enabled: false
       labels:
         release: kube-prometheus-stack
   relay:
@@ -78,7 +82,7 @@ gatewayAPI:
 prometheus:
   enabled: true
   serviceMonitor:
-    enabled: true
+    enabled: false   # see hubble note above; scraped via custom ServiceMonitors
     labels:
       app.kubernetes.io/component: monitoring
     annotations:
@@ -91,7 +95,7 @@ operator:
   prometheus:
     enabled: true
     serviceMonitor:
-      enabled: true
+      enabled: false   # scraped via custom cilium-operator ServiceMonitor
     annotations:
       prometheus.io/scrape: "true"
       prometheus.io/port: "9963"
