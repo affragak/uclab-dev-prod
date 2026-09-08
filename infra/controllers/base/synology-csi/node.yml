@@ -56,7 +56,6 @@ spec:
       labels:
         app: synology-csi-node
     spec:
-      hostPID: true
       serviceAccount: csi-node-sa
       hostNetwork: true
       containers:
@@ -67,7 +66,7 @@ spec:
           image: registry.k8s.io/sig-storage/csi-node-driver-registrar:v2.3.0
           args:
             - --v=5
-            - --csi-address=$(ADDRESS)                         # the csi socket path inside the pod
+            - --csi-address=$(ADDRESS) # the csi socket path inside the pod
             - --kubelet-registration-path=$(REGISTRATION_PATH) # the csi socket path on the host node
           env:
             - name: ADDRESS
@@ -87,13 +86,14 @@ spec:
           securityContext:
             privileged: true
           imagePullPolicy: IfNotPresent
-          image: ghcr.io/zebernst/synology-csi:v1.2.0
+          image: synology/synology-csi:v1.2.0
           args:
             - --nodeid=$(KUBE_NODE_NAME)
             - --endpoint=$(CSI_ENDPOINT)
             - --client-info
             - /etc/synology/client-info.yml
             - --log-level=info
+            # - --chroot-dir=/host
           env:
             - name: CSI_ENDPOINT
               value: unix://csi/csi.sock

@@ -6,3 +6,5 @@ resources:
   - controller.yml
   - csi-driver.yml
   - node.yml
+  - storage-class.yml
+  - storage-class-nfs.yml

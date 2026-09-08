@@ -9,3 +9,4 @@ resources:
   - gateway
   - cloudflare
   - policy-controller
+  - synology-csi
