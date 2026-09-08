@@ -1,0 +1,11 @@
+# Authoritative backup target for Longhorn 1.7+ (the "default" BackupTarget CR;
+# defaultSettings.backupTarget only seeds this on a fresh install). Points at
+# the NFS share on the Synology NAS.
+apiVersion: longhorn.io/v1beta2
+kind: BackupTarget
+metadata:
+  name: default
+  namespace: longhorn-system
+spec:
+  backupTargetURL: "nfs://10.10.10.9:/volume1/longhorn"
+  pollInterval: "5m0s"
