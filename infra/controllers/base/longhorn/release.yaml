@@ -15,3 +15,13 @@ spec:
         name: longhorn
         namespace: flux-system
       interval: 12h
+  values:
+    defaultSettings:
+      # Back volume snapshots up to the Synology NAS over NFS. Combined with the
+      # nightly RecurringJob, a full worker wipe is recoverable (this is what the
+      # DR incident lacked).
+      backupTarget: "nfs://10.10.10.9:/volume1/longhorn"
+      # Keep replicas on distinct nodes (hard anti-affinity) and rebalance them
+      # across nodes as topology changes.
+      replicaSoftAntiAffinity: false
+      replicaAutoBalance: best-effort

@@ -1,0 +1,14 @@
+# Nightly backup of all Longhorn volumes to the NFS backup target on the NAS.
+# groups:[default] => applies to every volume (new volumes auto-join "default").
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: nightly-backup
+  namespace: longhorn-system
+spec:
+  cron: "0 2 * * *"
+  task: backup
+  groups:
+    - default
+  retain: 7
+  concurrency: 2
