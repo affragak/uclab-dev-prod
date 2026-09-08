@@ -4,9 +4,4 @@ metadata:
   name: hugoblog
   labels:
     pod-security.kubernetes.io/enforce: restricted
-    # Temporarily exempt from sigstore enforcement during DR bootstrap: the
-    # blog image lives in the in-cluster Forgejo registry, which can't be up
-    # until apps applies — and enforcing here blocks the whole (atomic) apps
-    # layer, including Forgejo's own DB recovery. Re-enable after the blog
-    # image is rebuilt and pushed by CI.
-    # policy.sigstore.dev/include: "true"
+    policy.sigstore.dev/include: "true"
