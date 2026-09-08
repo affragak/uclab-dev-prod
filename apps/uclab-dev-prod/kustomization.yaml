@@ -5,4 +5,7 @@ resources:
   - forgejo-runner
   - n8n
   - linkding
-  - hugoblog
+  # hugoblog is intentionally NOT here — it has its own Flux Kustomization
+  # (clusters/.../apps.yaml) that dependsOn `apps`, because its image lives in
+  # the in-cluster Forgejo registry. Keeping it in this atomic set let a
+  # registry-not-ready / signature-denied hugoblog block forgejo's own recovery.

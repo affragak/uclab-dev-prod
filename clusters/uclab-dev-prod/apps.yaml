@@ -14,4 +14,23 @@ spec:
     name: flux-system
   path: ./apps/uclab-dev-prod
   prune: true
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: hugoblog
+  namespace: flux-system
+spec:
+  # Own Kustomization so a not-yet-ready Forgejo registry or a signature
+  # denial only holds back hugoblog — never forgejo/n8n/linkding recovery.
+  dependsOn:
+    - name: apps
+  interval: 10m0s
+  retryInterval: 1m
+  timeout: 5m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./apps/uclab-dev-prod/hugoblog
+  prune: true
 
