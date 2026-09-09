@@ -12,6 +12,13 @@ prometheus:
           resources:
             requests:
               storage: 10Gi
+# Cilium runs in kube-proxy-replacement mode — there is no kube-proxy
+# DaemonSet to scrape, so disable the component. This removes both the
+# kube-proxy ServiceMonitor and the KubeProxyDown alert rule (which would
+# otherwise fire forever against a target that will never exist).
+kubeProxy:
+  enabled: false
+
 kubeEtcd:
   enabled: true
   # NOTE: hardcoded control-plane IPs — these change when control-plane nodes
