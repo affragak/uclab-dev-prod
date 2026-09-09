@@ -26,6 +26,10 @@ executors:
 ## Global Botkube configuration
 settings:
   clusterName: uclab-dev-prod # Customize your cluster name
+  # TEMP: debug to confirm whether Slack is delivering incoming message events
+  # over Socket Mode. Revert to info once the bot responds.
+  log:
+    level: debug
 
 # Use existing secret for communications config
 existingCommunicationsSecretName: "botkube-slack-secrets"
