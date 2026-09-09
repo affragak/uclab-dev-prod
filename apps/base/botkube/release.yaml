@@ -17,3 +17,17 @@ spec:
   valuesFrom:
     - kind: ConfigMap
       name: botkube-values
+  # The botkube chart runs uid/gid 101 with readOnlyRootFilesystem and exposes
+  # no fsGroup value, so the Longhorn plugin-cache PVC mounts root-owned and the
+  # plugin manager can't write it. Inject fsGroup post-render so the kubelet
+  # chowns the volume to gid 101.
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Deployment
+              name: botkube-botkube
+            patch: |
+              - op: add
+                path: /spec/template/spec/securityContext/fsGroup
+                value: 101
