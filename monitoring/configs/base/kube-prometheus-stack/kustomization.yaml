@@ -17,3 +17,4 @@ resources:
   - dashboards/flux-cluster-dashboard.yaml
   - dashboards/flux-control-plane-dashboard.yaml
   - dashboards/flux-logs-dashboard.yaml
+  - dashboards/node-exporter-full-dashboard.yaml

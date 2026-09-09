@@ -37,6 +37,10 @@ kubeEtcd:
     scheme: http
 
 grafana:
+  # Drop the ~27 bundled kube-prometheus-stack dashboards; we curate our own set
+  # (performance-cockpit, cilium/hubble, cnpg, longhorn, flux, node-exporter-full,
+  # etc.) as grafana_dashboard ConfigMaps under monitoring/configs.
+  defaultDashboardsEnabled: false
   persistence:
     enabled: true
     storageClassName: longhorn
