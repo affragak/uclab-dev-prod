@@ -4,6 +4,7 @@ resources:
   - grafana-httproute.yaml
   - custom-servicemonitors.yaml
   - longhorn-servicemonitor.yaml
+  - flux-podmonitor.yaml
   - cnpg-alerts.yaml
   - dashboards/hubble-dashboard.yaml
   - dashboards/longhorn-dashboard.yaml
@@ -13,3 +14,5 @@ resources:
   - dashboards/app-performance-dashboard.yaml
   - dashboards/loki-logs-dashboard.yaml
   - dashboards/cnpg-dashboard.yaml
+  - dashboards/flux-cluster-dashboard.yaml
+  - dashboards/flux-control-plane-dashboard.yaml

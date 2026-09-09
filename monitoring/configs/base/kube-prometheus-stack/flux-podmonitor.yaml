@@ -1,0 +1,32 @@
+# Scrape all Flux controllers' metrics (port http-prom :8080). Flux controllers
+# carry app.kubernetes.io/part-of=flux; a single PodMonitor covers source-,
+# kustomize-, helm-, notification- (and image-*) controllers. Per the Flux docs:
+# https://fluxcd.io/flux/monitoring/metrics/
+# Discovered because kube-prometheus-stack sets podMonitorSelectorNilUsesHelmValues=false.
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: flux-system
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/part-of: flux
+    release: kube-prometheus-stack
+    prometheus: kube-prometheus-stack-prometheus
+spec:
+  namespaceSelector:
+    matchNames:
+      - flux-system
+  selector:
+    matchExpressions:
+      - key: app.kubernetes.io/part-of
+        operator: In
+        values:
+          - flux
+  podMetricsEndpoints:
+    - port: http-prom
+      interval: 30s
+      relabelings:
+        # only scrape Running pods (skip Completed/terminating replicas)
+        - sourceLabels: [__meta_kubernetes_pod_phase]
+          action: keep
+          regex: Running
