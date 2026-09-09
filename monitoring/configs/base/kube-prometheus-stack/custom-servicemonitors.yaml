@@ -28,8 +28,8 @@ spec:
   namespaceSelector:
     matchNames:
       - kube-system
-  podMetricsEndpoints:
-    - port: prometheus
+  endpoints:
+    - port: metrics
       interval: 30s
       path: /metrics
     - port: hubble-metrics
@@ -53,8 +53,8 @@ spec:
   namespaceSelector:
     matchNames:
       - kube-system
-  podMetricsEndpoints:
-    - port: prometheus
+  endpoints:
+    - port: metrics
       interval: 30s
       path: /metrics
 ---
