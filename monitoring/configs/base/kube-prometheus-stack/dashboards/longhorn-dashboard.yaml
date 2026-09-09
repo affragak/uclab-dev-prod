@@ -536,7 +536,7 @@ data:
           "pluginVersion": "7.1.5",
           "targets": [
             {
-              "expr": "count(longhorn_volume_state==2) OR on() vector(0)",
+              "expr": "count(longhorn_volume_state==1) OR on() vector(0)",
               "interval": "",
               "legendFormat": "",
               "refId": "A"
@@ -594,7 +594,7 @@ data:
           "pluginVersion": "7.1.5",
           "targets": [
             {
-              "expr": "count(longhorn_volume_state==3) OR on() vector(0)",
+              "expr": "count(count by (volume)(longhorn_volume_state)) - count(longhorn_volume_state==1) OR on() vector(0)",
               "interval": "",
               "legendFormat": "",
               "refId": "A"
@@ -1086,7 +1086,7 @@ data:
           "steppedLine": false,
           "targets": [
             {
-              "expr": "count by (node) (longhorn_volume_state==2)",
+              "expr": "count by (node) (longhorn_volume_state==1)",
               "interval": "",
               "legendFormat": "{{node}}",
               "refId": "A"
