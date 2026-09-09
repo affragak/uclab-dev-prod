@@ -15,6 +15,11 @@
 #
 # Prometheus discovers these because kube-prometheus-stack sets
 # serviceMonitorSelectorNilUsesHelmValues=false.
+#
+# targetLabels: [k8s-app] promotes the Service's `k8s-app` label onto every
+# scraped series as `k8s_app`. The official Cilium/Hubble Grafana dashboards
+# filter every query on `k8s_app="cilium"` / `k8s_app="hubble"`; without this
+# the targets are Up but the dashboards render empty (no series match).
 
 # Cilium agent (:9962)
 apiVersion: monitoring.coreos.com/v1
@@ -30,6 +35,8 @@ spec:
   selector:
     matchLabels:
       k8s-app: cilium
+  targetLabels:
+    - k8s-app
   namespaceSelector:
     matchNames:
       - kube-system
@@ -53,6 +60,8 @@ spec:
   selector:
     matchLabels:
       k8s-app: hubble
+  targetLabels:
+    - k8s-app
   namespaceSelector:
     matchNames:
       - kube-system
@@ -98,6 +107,8 @@ spec:
   selector:
     matchLabels:
       k8s-app: cilium-envoy
+  targetLabels:
+    - k8s-app
   namespaceSelector:
     matchNames:
       - kube-system
