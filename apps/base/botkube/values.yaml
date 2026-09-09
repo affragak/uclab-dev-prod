@@ -1,0 +1,46 @@
+## Format: communications.{alias}
+communications:
+  "default-group":
+    socketSlack:
+      enabled: true
+      channels:
+        "default":
+          name: "talos-uclab-dev-prod" # Your Slack channel name (lowercase)
+          bindings:
+            executors:
+              - k8s-default-tools
+            sources:
+              - k8s-err-events
+              - k8s-recommendation-events
+      botToken: "" # Will be overridden by existingCommunicationsSecretName
+      appToken: ""
+
+## Global Botkube configuration
+settings:
+  clusterName: uclab-dev-prod # Customize your cluster name
+
+# Use existing secret for communications config
+existingCommunicationsSecretName: "botkube-slack-secrets"
+
+# Mount PVC for plugin caching
+extraVolumes:
+  - name: plugins-cache
+    persistentVolumeClaim:
+      claimName: botkube-plugins-cache
+
+extraVolumeMounts:
+  - name: plugins-cache
+    mountPath: /tmp
+
+# Increase health check timeouts for slower Pi hardware
+deployment:
+  livenessProbe:
+    initialDelaySeconds: 180 # 3 minutes
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 12
+  readinessProbe:
+    initialDelaySeconds: 180
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 12
