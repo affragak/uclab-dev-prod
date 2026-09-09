@@ -22,7 +22,10 @@ settings:
 # Use existing secret for communications config
 existingCommunicationsSecretName: "botkube-slack-secrets"
 
-# Mount PVC for plugin caching
+# Mount PVC for plugin caching. NOTE: the chart already mounts an emptyDir at
+# /tmp (cache-volume), so mounting the PVC there too creates a duplicate
+# volumeMount and Helm refuses to apply. Use a dedicated path and point
+# botkube's plugin cacheDir at it (default cacheDir is /tmp).
 extraVolumes:
   - name: plugins-cache
     persistentVolumeClaim:
@@ -30,7 +33,11 @@ extraVolumes:
 
 extraVolumeMounts:
   - name: plugins-cache
-    mountPath: /tmp
+    mountPath: /plugin-cache
+
+# Persist downloaded plugins on the PVC instead of the ephemeral /tmp emptyDir.
+plugins:
+  cacheDir: /plugin-cache
 
 # Increase health check timeouts for slower Pi hardware
 deployment:
