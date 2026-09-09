@@ -4,4 +4,5 @@ resources:
   - httproute.yaml
   - backuptarget.yaml
   - recurringjob-backup.yaml
+  - networkpolicy-metrics.yaml
 

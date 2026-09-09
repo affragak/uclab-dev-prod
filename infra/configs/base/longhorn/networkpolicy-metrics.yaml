@@ -1,0 +1,26 @@
+# Longhorn ships NetworkPolicies that restrict ingress to longhorn-manager to a
+# fixed set of Longhorn pods — Prometheus (in the monitoring namespace) is not
+# among them, so metric scrapes to :9500 are silently dropped (the target shows
+# "context deadline exceeded", a timeout, not connection refused).
+#
+# NetworkPolicies are additive (OR), so this companion policy opens the manager
+# metrics port to the monitoring namespace without touching Longhorn's own policy.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: longhorn-manager-metrics-from-monitoring
+  namespace: longhorn-system
+spec:
+  podSelector:
+    matchLabels:
+      app: longhorn-manager
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+      ports:
+        - protocol: TCP
+          port: 9500
