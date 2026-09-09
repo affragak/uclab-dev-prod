@@ -1,0 +1,24 @@
+# Longhorn manager metrics (:9500). The metrics Service is `longhorn-backend`
+# (label app=longhorn-manager, port name `manager`), NOT a service literally
+# named longhorn-manager. Discovered because kube-prometheus-stack sets
+# serviceMonitorSelectorNilUsesHelmValues=false.
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: longhorn-metrics
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: longhorn
+    release: kube-prometheus-stack
+    prometheus: kube-prometheus-stack-prometheus
+spec:
+  selector:
+    matchLabels:
+      app: longhorn-manager
+  namespaceSelector:
+    matchNames:
+      - longhorn-system
+  endpoints:
+    - port: manager
+      interval: 30s
+      path: /metrics

@@ -3,8 +3,10 @@ kind: Kustomization
 resources:
   - grafana-httproute.yaml
   - custom-servicemonitors.yaml
+  - longhorn-servicemonitor.yaml
   - cnpg-alerts.yaml
   - dashboards/hubble-dashboard.yaml
+  - dashboards/longhorn-dashboard.yaml
   - dashboards/cilium-agent-dashboard.yaml
   - dashboards/etcd-dashboard.yaml
   - dashboards/performance-cockpit-dashboard.yaml
