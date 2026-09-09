@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
   - helmrepository.yaml
   - grafana-creds-externalsecret.yaml
+  - alertmanager-slack-externalsecret.yaml
   - prometheus-stack.yaml
 
 configMapGenerator:
