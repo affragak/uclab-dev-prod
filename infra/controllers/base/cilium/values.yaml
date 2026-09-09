@@ -81,23 +81,15 @@ gatewayAPI:
 
 prometheus:
   enabled: true
+  metricsService: true
   serviceMonitor:
-    enabled: false   # see hubble note above; scraped via custom ServiceMonitors
-    labels:
-      app.kubernetes.io/component: monitoring
-    annotations:
-      prometheus.io/scrape: "true"
-      prometheus.io/port: "9962"
+    enabled: false # see hubble note above; scraped via custom ServiceMonitors
 
 operator:
   rollOutPods: true
   # replicas: 1
   prometheus:
     enabled: true
+    metricsService: true
     serviceMonitor:
-      enabled: false   # scraped via custom cilium-operator ServiceMonitor
-    annotations:
-      prometheus.io/scrape: "true"
-      prometheus.io/port: "9963"
-      labels:
-        app.kubernetes.io/component: monitoring
+      enabled: false # scraped via custom cilium-operator ServiceMonitor

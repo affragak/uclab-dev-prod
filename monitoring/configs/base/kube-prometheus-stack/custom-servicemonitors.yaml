@@ -13,12 +13,14 @@
 # Cilium agent (:9962 "prometheus") AND Hubble (:9965 "hubble-metrics") —
 # both ports live on the cilium-agent pod (k8s-app=cilium).
 apiVersion: monitoring.coreos.com/v1
-kind: PodMonitor
+kind: ServiceMonitor
 metadata:
   name: cilium-agent
   namespace: monitoring
   labels:
+    app.kubernetes.io/name: cilium
     release: kube-prometheus-stack
+    prometheus: kube-prometheus-stack-prometheus
 spec:
   selector:
     matchLabels:
@@ -36,11 +38,13 @@ spec:
 ---
 # Cilium operator (:9963 "prometheus")
 apiVersion: monitoring.coreos.com/v1
-kind: PodMonitor
+kind: ServiceMonitor
 metadata:
   name: cilium-operator
   namespace: monitoring
   labels:
+    app.kubernetes.io/name: cilium-operator
+    prometheus: kube-prometheus-stack-prometheus
     release: kube-prometheus-stack
 spec:
   selector:
