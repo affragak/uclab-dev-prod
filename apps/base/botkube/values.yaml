@@ -15,6 +15,14 @@ communications:
       botToken: "" # Will be overridden by existingCommunicationsSecretName
       appToken: ""
 
+## Executors. The chart ships botkube/kubectl DISABLED by default, so the
+## `k`/`kubectl` aliases silently do nothing. Enable it here (RBAC comes from
+## the botkube-plugins-default group, which has get/watch/list on all resources).
+executors:
+  k8s-default-tools:
+    botkube/kubectl:
+      enabled: true
+
 ## Global Botkube configuration
 settings:
   clusterName: uclab-dev-prod # Customize your cluster name
