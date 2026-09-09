@@ -2,9 +2,9 @@ apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: botkube
-  namespace: botkube
+  namespace: flux-system
 spec:
-  releaseName: botkube
+  targetNamespace: botkube
   interval: 15m
   chart:
     spec:
@@ -13,7 +13,7 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: botkube
-        namespace: botkube
+        namespace: flux-system
   valuesFrom:
     - kind: ConfigMap
       name: botkube-values
