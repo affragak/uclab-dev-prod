@@ -8,7 +8,7 @@ spec:
     - name: uclab-gateway
       namespace: gateway-system
   hostnames:
-    - grafana.uclab.dev
+    - monitoring.uclab.dev
   rules:
     - backendRefs:
         - name: kube-prometheus-stack-grafana

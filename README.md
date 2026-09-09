@@ -32,7 +32,7 @@ Deployed under `monitoring/`, discovered by the Grafana sidecar (`grafana_dashbo
 | Network telemetry | Cilium + Hubble metrics via ServiceMonitors |
 | DB telemetry | CNPG PodMonitors (`:9187`) + default CNPG PrometheusRule alerts |
 
-Grafana is at `grafana.uclab.dev`.
+Grafana is at `monitoring.uclab.dev`.
 
 ## Applications
 
