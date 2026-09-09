@@ -1,17 +1,22 @@
 # Cilium/Hubble metrics scraping.
 #
-# NOTE: Cilium's built-in ServiceMonitors are disabled (they require the
-# monitoring.coreos.com CRDs at CNI-install time, which breaks a cold bootstrap
-# — see the DR notes). Cilium only creates the agent/operator metrics *Services*
-# when its serviceMonitor is enabled, so we scrape the pods directly with
-# PodMonitors instead (no Service needed). prometheus.enabled=true keeps the
-# metrics ports open on the pods.
+# NOTE: Cilium's built-in ServiceMonitors are disabled in the Helm values
+# (prometheus.serviceMonitor.enabled=false, etc.) because enabling them at
+# CNI-install time requires the monitoring.coreos.com CRDs, which breaks a cold
+# bootstrap (see the DR notes). But the metrics *Services* are still created by
+# prometheus.enabled=true / hubble.metrics.enabled / operator.prometheus.enabled,
+# so we own the ServiceMonitors here instead. Each metrics endpoint is a SEPARATE
+# Service — one ServiceMonitor per Service, matching its exact labels/port name
+# (verified with `kubectl -n kube-system get svc`):
+#   svc/cilium-agent    k8s-app=cilium        port metrics        (:9962)
+#   svc/hubble-metrics  k8s-app=hubble        port hubble-metrics (:9965)
+#   svc/cilium-operator name=cilium-operator  port metrics        (:9963)
+#   svc/cilium-envoy    k8s-app=cilium-envoy  port envoy-metrics  (:9964)
 #
 # Prometheus discovers these because kube-prometheus-stack sets
-# podMonitorSelectorNilUsesHelmValues=false / serviceMonitorSelectorNilUsesHelmValues=false.
+# serviceMonitorSelectorNilUsesHelmValues=false.
 
-# Cilium agent (:9962 "prometheus") AND Hubble (:9965 "hubble-metrics") —
-# both ports live on the cilium-agent pod (k8s-app=cilium).
+# Cilium agent (:9962)
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
@@ -32,11 +37,31 @@ spec:
     - port: metrics
       interval: 30s
       path: /metrics
+---
+# Hubble (:9965) — SEPARATE Service (k8s-app=hubble); this is the flow/L7 data
+# that the Hubble dashboards need.
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: hubble
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: hubble
+    release: kube-prometheus-stack
+    prometheus: kube-prometheus-stack-prometheus
+spec:
+  selector:
+    matchLabels:
+      k8s-app: hubble
+  namespaceSelector:
+    matchNames:
+      - kube-system
+  endpoints:
     - port: hubble-metrics
       interval: 30s
       path: /metrics
 ---
-# Cilium operator (:9963 "prometheus")
+# Cilium operator (:9963)
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
