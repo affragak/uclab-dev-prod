@@ -16,3 +16,4 @@ resources:
   - dashboards/cnpg-dashboard.yaml
   - dashboards/flux-cluster-dashboard.yaml
   - dashboards/flux-control-plane-dashboard.yaml
+  - dashboards/flux-logs-dashboard.yaml
