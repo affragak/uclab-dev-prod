@@ -2,6 +2,18 @@ machine:
   kubelet:
     extraArgs:
       rotate-server-certificates: true
+    extraMounts:
+      - destination: /var/lib/longhorn
+        options:
+          - bind
+          - rshared
+          - rw
+        source: /var/lib/longhorn
+        type: bind
+  disks:
+    - device: /dev/sdb # The name of the disk to use.
+      partitions:
+        - mountpoint: /var/mnt/longhorn
 cluster:
   proxy:
     disabled: true
@@ -13,6 +25,19 @@ cluster:
     # before the CNI install, so a rebuild needs no manual `kubectl apply` of
     # the Gateway API CRDs (a gap that stalled the DR rebuild).
     - https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.6.1/standard-install.yaml
+  allowSchedulingOnControlPlanes: true
   network:
     cni:
       name: none
+  # etcd/scheduler/controllerManager expose their metrics on localhost by
+  # default on Talos, so kube-prometheus-stack can't scrape them (TargetDown).
+  # Bind them to 0.0.0.0 so Prometheus can reach :2381 / :10259 / :10257.
+  etcd:
+    extraArgs:
+      listen-metrics-urls: http://0.0.0.0:2381
+  scheduler:
+    extraArgs:
+      bind-address: 0.0.0.0
+  controllerManager:
+    extraArgs:
+      bind-address: 0.0.0.0
