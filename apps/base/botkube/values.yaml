@@ -22,6 +22,12 @@ settings:
 # Use existing secret for communications config
 existingCommunicationsSecretName: "botkube-slack-secrets"
 
+# botkube runs as uid/gid 101 with a read-only root fs. The plugin-cache PVC
+# (Longhorn) mounts root-owned, so add fsGroup so the kubelet chowns it to gid
+# 101 — otherwise the plugin manager gets "permission denied" writing the cache.
+securityContext:
+  fsGroup: 101
+
 # Mount PVC for plugin caching. NOTE: the chart already mounts an emptyDir at
 # /tmp (cache-volume), so mounting the PVC there too creates a duplicate
 # volumeMount and Helm refuses to apply. Use a dedicated path and point
