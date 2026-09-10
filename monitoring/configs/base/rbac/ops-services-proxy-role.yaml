@@ -1,0 +1,14 @@
+# Read-only access to the Prometheus and Loki ClusterIP services in the
+# monitoring namespace via the API server's service proxy subresource, for
+# the ops user only. Services are ClusterIP with no Ingress and this Hermes
+# VM is off-cluster, so "services/proxy" GET is the only read path in.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: ops-services-proxy
+  namespace: monitoring
+rules:
+  - apiGroups: [""]
+    resources:
+      - services/proxy
+    verbs: ["get"]
