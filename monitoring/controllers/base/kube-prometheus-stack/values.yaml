@@ -68,14 +68,19 @@ grafana:
     dashboards:
       default_home_dashboard_path: /tmp/dashboards/performance-cockpit.json
 
-# Route Prometheus alerts to Slack. The webhook URL is synced from Vault by the
+# Route Prometheus alerts to Slack, and fan out a copy to the Hermes webhook for
+# enrichment. The Slack webhook URL is synced from Vault by the
 # alertmanager-slack-webhook ExternalSecret and mounted (via alertmanagerSpec.secrets)
 # at /etc/alertmanager/secrets/alertmanager-slack-webhook/webhook-url — referenced
-# with slack_api_url_file so the URL never lands in Git.
+# with slack_api_url_file so the URL never lands in Git. Likewise the Hermes shared
+# secret is synced by the alertmanager-hermes-webhook ExternalSecret and mounted at
+# /etc/alertmanager/secrets/alertmanager-hermes-webhook/token, referenced via
+# http_config.http_headers so the token never lands in Git either.
 alertmanager:
   alertmanagerSpec:
     secrets:
       - alertmanager-slack-webhook
+      - alertmanager-hermes-webhook
   config:
     global:
       slack_api_url_file: /etc/alertmanager/secrets/alertmanager-slack-webhook/webhook-url
@@ -87,10 +92,19 @@ alertmanager:
       group_interval: 5m
       repeat_interval: 4h
       routes:
-        # Watchdog is an always-firing heartbeat — keep it out of Slack.
+        # Watchdog is an always-firing heartbeat — keep it out of both Slack and Hermes.
         - matchers:
             - alertname = "Watchdog"
           receiver: "null"
+        # Fan out every other alert to both Slack (existing) and Hermes (new, for
+        # enrichment). Both routes match everything (no matchers) and the first has
+        # continue:true so evaluation carries on to the second — this duplicates
+        # delivery rather than replacing Slack. If Hermes should become the sole
+        # destination instead, drop the "continue: true" below and change the slack
+        # route's receiver, or remove the slack route entirely.
+        - receiver: slack
+          continue: true
+        - receiver: hermes-webhook
     receivers:
       - name: "null"
       - name: slack
@@ -103,6 +117,15 @@ alertmanager:
               {{ .Annotations.description }}
               {{ if .Labels.namespace }}ns: `{{ .Labels.namespace }}`{{ end }}
               {{ end }}
+      - name: hermes-webhook
+        webhook_configs:
+          - url: "http://10.10.10.166:8644/webhooks/alertmanager"
+            send_resolved: true
+            http_config:
+              http_headers:
+                X-Gitlab-Token:
+                  files:
+                    - /etc/alertmanager/secrets/alertmanager-hermes-webhook/token
 
 # Flux custom-resource metrics via kube-state-metrics (gotk_reconcile_condition,
 # gotk_suspend_status, gotk_resource_info) — required by the Flux "Cluster Stats"

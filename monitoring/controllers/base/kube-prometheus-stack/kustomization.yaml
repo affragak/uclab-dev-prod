@@ -4,6 +4,7 @@ resources:
   - helmrepository.yaml
   - grafana-creds-externalsecret.yaml
   - alertmanager-slack-externalsecret.yaml
+  - alertmanager-hermes-webhook-externalsecret.yaml
   - prometheus-stack.yaml
 
 configMapGenerator:
