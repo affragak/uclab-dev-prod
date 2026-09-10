@@ -8,3 +8,4 @@ resources:
   - policy-controller
   - gateway
   - cloudflare
+  - rbac

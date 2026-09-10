@@ -1,0 +1,14 @@
+# Read-only access to cluster-scoped Node objects for the ops user.
+# The built-in "view" ClusterRole (used by the hermes-readonly binding) does
+# not cover cluster-scoped resources like nodes, so ops (and only ops, not
+# the whole hermes:readonly group) gets this narrow addition.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ops-node-reader
+rules:
+  - apiGroups: [""]
+    resources:
+      - nodes
+      - nodes/status
+    verbs: ["get", "list", "watch"]
