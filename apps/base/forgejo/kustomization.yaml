@@ -14,4 +14,6 @@ resources:
   - scheduled-backup.yaml
   - ops-restart-role.yaml
   - ops-restart-rolebinding.yaml
+  - ops-cnpg-backup-role.yaml
+  - ops-cnpg-backup-rolebinding.yaml
 
