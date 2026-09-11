@@ -76,3 +76,50 @@ spec:
           for: 1m
           labels:
             severity: warning
+    # Backup object accounting, sourced from the kube_cnpg_backup_created /
+    # kube_cnpg_backup_info metrics emitted by kube-state-metrics'
+    # customResourceState config for postgresql.cnpg.io/v1 Backup (see
+    # monitoring/controllers/base/kube-prometheus-stack/values.yaml).
+    #
+    # Context: ops holds create-only RBAC on backups.postgresql.cnpg.io
+    # (no delete), with no rate limit enforced by RBAC. A retry loop in the
+    # ops agent could spam base backups (DB load + MinIO growth). Normal rate
+    # is 1 scheduled backup/day/cluster across forgejo-db-v1, linkding-db-v1,
+    # n8n-db-v1; the ObjectStore's 3d retentionPolicy ages out backup DATA but
+    # NOT the Backup custom resource objects themselves (those only get GC'd
+    # when the owning Cluster is deleted), so CR count grows ~1/day/namespace
+    # even in normal steady-state operation.
+    - name: cnpg-backup-accounting.rules
+      rules:
+        - alert: CNPGBackupCreationRateHigh
+          annotations:
+            summary: Backup CRs are being created much faster than the 1/day/cluster schedule in {{ $labels.namespace }}.
+            description: |-
+              {{ $value | humanize }} CloudNativePG Backup objects were created in namespace
+              {{ $labels.namespace }} in the last hour. Normal is one scheduled backup per
+              cluster per day, so this strongly suggests a retry loop (e.g. the ops agent)
+              repeatedly creating base backups — real DB load and MinIO growth within the
+              retention window. Backups cannot be deleted by ops (no delete RBAC granted by
+              design) — investigate and, if it's a stuck retry loop, a human must pause the
+              source and manually prune the excess Backup objects.
+          expr: |-
+            count by (namespace) (kube_cnpg_backup_created > (time() - 3600)) > 3
+          for: 5m
+          labels:
+            severity: warning
+        - alert: CNPGBackupCountHigh
+          annotations:
+            summary: Backup CR count in {{ $labels.namespace }} is high enough that pruning is overdue.
+            description: |-
+              Namespace {{ $labels.namespace }} has {{ $value | humanize }} CloudNativePG
+              Backup objects. At the normal rate of ~1/day/cluster this represents months of
+              accumulation — the ObjectStore's retentionPolicy ages out the backup DATA but
+              the Backup custom resource objects themselves are only garbage-collected when
+              the owning Cluster is deleted. This is a slow-burn "someone should prune"
+              signal, not an emergency. Backups cannot be deleted by ops (no delete RBAC
+              granted by design) — pruning the stale Backup objects is a human action.
+          expr: |-
+            count by (namespace) (kube_cnpg_backup_created) > 60
+          for: 15m
+          labels:
+            severity: warning
