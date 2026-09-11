@@ -168,16 +168,16 @@ kube-state-metrics:
         resources:
           # CNPG Backup objects — needed to alert on runaway backup creation
           # (ops has create-only RBAC on backups.postgresql.cnpg.io, PR #11).
-          # Emits kube_cnpg_backup_info (namespace, name, cluster, phase — Info,
-          # value 1, one series per Backup object) and kube_cnpg_backup_created
-          # (creationTimestamp as a unix-time Gauge, used for the rate alert).
+          # Emits kube_cnpg_backup_info (exported_namespace, name, cluster,
+          # phase — Info, value 1, one series per Backup object), consumed by
+          # CNPGBackupCreationRateHigh to derive the creation rate.
           - groupVersionKind:
               group: postgresql.cnpg.io
               version: v1
               kind: Backup
             metricNamePrefix: kube_cnpg
             labelsFromPath:
-              namespace: [metadata, namespace]
+              exported_namespace: [metadata, namespace]
               name: [metadata, name]
             metrics:
               - name: "backup_info"
@@ -188,12 +188,6 @@ kube-state-metrics:
                     labelsFromPath:
                       cluster: [spec, cluster, name]
                       phase: [status, phase]
-              - name: "backup_created"
-                help: "Unix creation timestamp of a CloudNativePG Backup object."
-                each:
-                  type: Gauge
-                  gauge:
-                    path: [metadata, creationTimestamp]
           - groupVersionKind:
               group: kustomize.toolkit.fluxcd.io
               version: v1

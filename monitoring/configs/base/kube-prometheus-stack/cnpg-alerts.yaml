@@ -76,19 +76,18 @@ spec:
           for: 1m
           labels:
             severity: warning
-    # Backup object accounting, sourced from the kube_cnpg_backup_created /
-    # kube_cnpg_backup_info metrics emitted by kube-state-metrics'
-    # customResourceState config for postgresql.cnpg.io/v1 Backup (see
+    # Backup creation-rate detection, sourced from the kube_cnpg_backup_info
+    # metric emitted by kube-state-metrics' customResourceState config for
+    # postgresql.cnpg.io/v1 Backup (see
     # monitoring/controllers/base/kube-prometheus-stack/values.yaml).
     #
     # Context: ops holds create-only RBAC on backups.postgresql.cnpg.io
     # (no delete), with no rate limit enforced by RBAC. A retry loop in the
     # ops agent could spam base backups (DB load + MinIO growth). Normal rate
     # is 1 scheduled backup/day/cluster across forgejo-db-v1, linkding-db-v1,
-    # n8n-db-v1; the ObjectStore's 3d retentionPolicy ages out backup DATA but
-    # NOT the Backup custom resource objects themselves (those only get GC'd
-    # when the owning Cluster is deleted), so CR count grows ~1/day/namespace
-    # even in normal steady-state operation.
+    # n8n-db-v1. Backup CRs are never deleted by ops, so the per-namespace
+    # count of kube_cnpg_backup_info is monotonic and its 1h delta equals the
+    # number of Backup objects created in that window.
     - name: cnpg-backup-accounting.rules
       rules:
         - alert: CNPGBackupCreationRateHigh
@@ -103,7 +102,7 @@ spec:
               design) — investigate and, if it's a stuck retry loop, a human must pause the
               source and manually prune the excess Backup objects.
           expr: |-
-            count by (exported_namespace) (kube_cnpg_backup_created > (time() - 3600)) > 3
+            count by (exported_namespace) (kube_cnpg_backup_info) - count by (exported_namespace) (kube_cnpg_backup_info offset 1h) > 3
           for: 5m
           labels:
             severity: warning
