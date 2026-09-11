@@ -92,14 +92,10 @@ alertmanager:
       group_interval: 5m
       repeat_interval: 4h
       routes:
-        # TEMPORARY (t_fd470399): Watchdog normally goes to "null" (kept out of both
-        # Slack and Hermes). Routing it to hermes-webhook here instead, as a one-off
-        # test of real Alertmanager -> Hermes webhook delivery (egress, ufw, and the
-        # X-Gitlab-Token header from the mounted secret). Revert to receiver: "null"
-        # once the test alert is confirmed received.
+        # Watchdog is an always-firing heartbeat — keep it out of both Slack and Hermes.
         - matchers:
             - alertname = "Watchdog"
-          receiver: hermes-webhook
+          receiver: "null"
         # Fan out every other alert to both Slack (existing) and Hermes (new, for
         # enrichment). Both routes match everything (no matchers) and the first has
         # continue:true so evaluation carries on to the second — this duplicates
