@@ -102,7 +102,10 @@ spec:
               design) — investigate and, if it's a stuck retry loop, a human must pause the
               source and manually prune the excess Backup objects.
           expr: |-
-            count by (exported_namespace) (kube_cnpg_backup_info) - count by (exported_namespace) (kube_cnpg_backup_info offset 1h) > 3
+            (
+              count by (exported_namespace) (kube_cnpg_backup_info)
+              - (count by (exported_namespace) (kube_cnpg_backup_info offset 1h) or count by (exported_namespace) (kube_cnpg_backup_info) * 0)
+            ) > 3
           for: 5m
           labels:
             severity: warning
