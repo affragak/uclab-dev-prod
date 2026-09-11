@@ -1,0 +1,20 @@
+# Narrow day-2 remediation allowlist for the ops user in this namespace only.
+# Restart = DELETE the pod (the ReplicaSet/StatefulSet recreates it) so ops
+# never gets patch/update on the Deployment/StatefulSet itself (which would
+# also allow changing image, env, replicas, etc). Scale is exposed only via
+# the `scale` subresource, which surfaces nothing but replica count.
+# No create, no exec, no secrets/configmaps, no RBAC objects.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: ops-restart
+rules:
+  - apiGroups: [""]
+    resources:
+      - pods
+    verbs: ["delete"]
+  - apiGroups: ["apps"]
+    resources:
+      - deployments/scale
+      - statefulsets/scale
+    verbs: ["get", "update", "patch"]

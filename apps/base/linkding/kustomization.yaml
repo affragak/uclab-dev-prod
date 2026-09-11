@@ -8,3 +8,5 @@ resources:
   - storage.yaml
   - service.yaml
   - backup.yaml
+  - ops-restart-role.yaml
+  - ops-restart-rolebinding.yaml

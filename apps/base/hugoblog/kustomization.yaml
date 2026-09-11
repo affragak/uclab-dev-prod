@@ -6,3 +6,5 @@ resources:
   - deployment.yaml
   - service.yaml
   - pdb.yaml
+  - ops-restart-role.yaml
+  - ops-restart-rolebinding.yaml
