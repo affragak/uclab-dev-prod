@@ -7,8 +7,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: read
-      issues: read
+      pull-requests: write
+      issues: write
       id-token: write
     steps:
       - uses: actions/checkout@v6
@@ -17,7 +17,30 @@ jobs:
       - uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          plugin_marketplaces: "https://github.com/anthropics/claude-code.git"
-          plugins: "code-review@claude-code-plugins"
-          prompt: "/code-review:code-review --comment ${{ github.repository }}/pull/${{ github.event.pull_request.number }}"
-          claude_args: '--allowedTools "mcp__github_inline_comment__create_inline_comment"'
+          claude_args: '--allowedTools "Read,Grep,Glob,Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh api:*),mcp__github_inline_comment__create_inline_comment"'
+          prompt: |
+            Review pull request #${{ github.event.pull_request.number }} in ${{ github.repository }}
+            as this repository's PR reviewer. Follow the review guide in CLAUDE.md exactly
+            (persona, the 3 steps, the homelab risk rules, footguns, and security checklist).
+
+            Read the PR metadata and labels (`gh pr view ${{ github.event.pull_request.number }}
+            --json title,body,labels,headRefName,files`) and the diff (`gh pr diff`).
+
+            Post EXACTLY ONE top-level PR comment with your structured review, in this order:
+            1. **Source verdict** — from the PR labels: confirm `agent-authored` and which
+               `agent/<role>`. If `agent/ops` or `agent/team-lead` is present, OPEN the comment
+               with a "🚨 GUARDRAIL ALARM" per CLAUDE.md (those roles must never open a PR).
+            2. **Change summary** — component(s), from→to versions, and PATCH / MINOR / MAJOR.
+            3. **Risk level** — LOW / MEDIUM / HIGH, naming the exact CLAUDE.md rule that set it.
+            4. **Checks performed** — enumerate the relevant CLAUDE.md footgun + security checks
+               and the result of each (✅ pass / ⚠️ note / ❌ fail): secrets-in-Git, RBAC
+               self-escalation / scope-vs-role, breaking changes / changelog, CRD apiVersion,
+               DB/CNPG, image pinning & signing, RWO+Recreate, hardcoded IPs, etc. — only those
+               that apply to this diff.
+            5. **Recommendation** — "safe to proceed" or "manual review required". Never imply
+               approval for HIGH risk, database migrations, breaking changes, or unverified/alarm
+               sources — be conservative.
+
+            Add inline comments (via the inline-comment tool) for any line-anchored findings.
+            Even if the change is clean and LOW risk, STILL post the full summary — do not stay
+            silent. Keep it concise and specific to this diff.
