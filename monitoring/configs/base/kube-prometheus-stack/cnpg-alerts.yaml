@@ -76,3 +76,35 @@ spec:
           for: 1m
           labels:
             severity: warning
+    - name: cnpg-backup-rate.rules
+      rules:
+        # Watches the barman-cloud plugin metrics (already scraped, already
+        # labeled with a real Prometheus `namespace` target label) rather than
+        # the in-tree collector's backup timestamp, which is always 0 here
+        # because backups run via the barman-cloud plugin, not the in-tree
+        # archiver/backup path. Detects backups that COMPLETE or FAIL, not
+        # Backup CRs that are merely created: a CR stuck pending advances
+        # neither timestamp. That's an accepted tradeoff, since a backup that
+        # never runs causes neither the DB load nor the object-store growth
+        # this alert exists to catch.
+        - alert: CNPGBackupRateHigh
+          annotations:
+            description: >-
+              Namespace {{ $labels.namespace }} has completed or failed more
+              than 3 CNPG backups in the last hour. Normal is one scheduled
+              backup per cluster per day, so this rate means something is
+              triggering repeated backups - most likely a retry loop in the
+              ops agent, which holds create-but-not-delete RBAC on Backup
+              objects in this namespace. Each extra run costs real database
+              load and grows MinIO usage inside the 3-day retention window.
+              Investigate and stop the source; ops cannot delete backups by
+              design, so this requires a human.
+            summary: CNPG backup rate for {{ $labels.namespace }} is abnormally high.
+          expr: |-
+            max by (namespace) (
+              changes(barman_cloud_cloudnative_pg_io_last_available_backup_timestamp[1h])
+              + changes(barman_cloud_cloudnative_pg_io_last_failed_backup_timestamp[1h])
+            ) > 3
+          for: 10m
+          labels:
+            severity: warning
