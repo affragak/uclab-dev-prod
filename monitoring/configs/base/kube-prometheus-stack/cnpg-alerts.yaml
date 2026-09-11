@@ -93,33 +93,17 @@ spec:
       rules:
         - alert: CNPGBackupCreationRateHigh
           annotations:
-            summary: Backup CRs are being created much faster than the 1/day/cluster schedule in {{ $labels.namespace }}.
+            summary: Backup CRs are being created much faster than the 1/day/cluster schedule in {{ $labels.exported_namespace }}.
             description: |-
               {{ $value | humanize }} CloudNativePG Backup objects were created in namespace
-              {{ $labels.namespace }} in the last hour. Normal is one scheduled backup per
+              {{ $labels.exported_namespace }} in the last hour. Normal is one scheduled backup per
               cluster per day, so this strongly suggests a retry loop (e.g. the ops agent)
               repeatedly creating base backups — real DB load and MinIO growth within the
               retention window. Backups cannot be deleted by ops (no delete RBAC granted by
               design) — investigate and, if it's a stuck retry loop, a human must pause the
               source and manually prune the excess Backup objects.
           expr: |-
-            count by (namespace) (kube_cnpg_backup_created > (time() - 3600)) > 3
+            count by (exported_namespace) (kube_cnpg_backup_created > (time() - 3600)) > 3
           for: 5m
-          labels:
-            severity: warning
-        - alert: CNPGBackupCountHigh
-          annotations:
-            summary: Backup CR count in {{ $labels.namespace }} is high enough that pruning is overdue.
-            description: |-
-              Namespace {{ $labels.namespace }} has {{ $value | humanize }} CloudNativePG
-              Backup objects. At the normal rate of ~1/day/cluster this represents months of
-              accumulation — the ObjectStore's retentionPolicy ages out the backup DATA but
-              the Backup custom resource objects themselves are only garbage-collected when
-              the owning Cluster is deleted. This is a slow-burn "someone should prune"
-              signal, not an emergency. Backups cannot be deleted by ops (no delete RBAC
-              granted by design) — pruning the stale Backup objects is a human action.
-          expr: |-
-            count by (namespace) (kube_cnpg_backup_created) > 60
-          for: 15m
           labels:
             severity: warning
