@@ -10,4 +10,6 @@ resources:
   - deployment.yaml
   - service.yaml
   - scheduled-backup.yaml
+  - ops-restart-role.yaml
+  - ops-restart-rolebinding.yaml
 

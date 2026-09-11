@@ -6,3 +6,5 @@ resources:
   - storage.yaml
   - deployment.yaml
   - configmap.yaml
+  - ops-restart-role.yaml
+  - ops-restart-rolebinding.yaml

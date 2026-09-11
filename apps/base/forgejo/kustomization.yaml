@@ -12,4 +12,6 @@ resources:
   - service-http.yaml
   - service-ssh.yaml
   - scheduled-backup.yaml
+  - ops-restart-role.yaml
+  - ops-restart-rolebinding.yaml
 
