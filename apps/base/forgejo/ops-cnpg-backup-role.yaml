@@ -1,0 +1,23 @@
+# Narrow day-2 grant for the ops user: trigger and observe CNPG on-demand
+# backups in this namespace only. A Backup CR is a transient operational
+# object, not desired state, so triggering one is legitimate runtime ops
+# work and does not belong in GitOps.
+#
+# No delete on backups: deleting a Backup CR discards a recovery point,
+# that stays a human action. No write verbs on clusters/scheduledbackups:
+# changing a Postgres cluster spec or its backup schedule is a GitOps
+# change, not an ops runtime action.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: ops-cnpg-backup
+rules:
+  - apiGroups: ["postgresql.cnpg.io"]
+    resources:
+      - backups
+    verbs: ["create", "get", "list", "watch"]
+  - apiGroups: ["postgresql.cnpg.io"]
+    resources:
+      - clusters
+      - scheduledbackups
+    verbs: ["get", "list", "watch"]
